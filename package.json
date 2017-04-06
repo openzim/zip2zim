@@ -16,6 +16,7 @@
     "@types/ncp": "^2.0.0",
     "@types/request": "0.0.42",
     "@types/rimraf": "0.0.28",
+    "es6-shim": "^0.35.3",
     "express": "^4.15.2",
     "formidable": "^1.1.1",
     "friendly-ids": "^1.0.1",
