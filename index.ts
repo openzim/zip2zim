@@ -17,7 +17,7 @@ const scheduleEntryDeletion = id => {
 };
 
 const copyFileSync = function copyFileSync(from, to) {
-  fs.writeFileSync(to, fs.readFileSync(from));
+    fs.writeFileSync(to, fs.readFileSync(from));
 };
 
 const newPoolEntry = handler => {
@@ -67,10 +67,10 @@ const zimify = function zimify(id: string) {
 
         console.log(config);
 
-        try{
+        try {
             fs.statSync(`./pool/${id}/content/favicon.png`);
         } catch (e) {
-            
+
         }
 
         const exportProc = spawn(`zimwriterfs`,
@@ -84,7 +84,7 @@ const zimify = function zimify(id: string) {
                 `--creator=${config.creator}`,
                 `--publisher=${config.publisher}`,
                 `./pool/${id}/content`,
-                `./pool/${id}/out/${config.title}.zim`]);
+                `./pool/${id}/out/${id}.zim`]);
 
         exportProc.stdout.on('data', function (data) {
             console.log('stdout: ' + data);
@@ -136,14 +136,40 @@ app.post('/upload', function (req, res) {
                     .pipe(unzip.Extract({ path: `./pool/${id}/content/` }))
                     .on('close', function () {
                         zimify(id);
+                        res.send(id);
                     });
-                res.send(`success`);
             } else {
                 console.error('Upload Failed');
                 res.status(500).send('There was an error with the upload');
             }
         });
     });
+});
+
+app.get('/done/:id/:final', (req, res) => {
+    const id = req.params.id;
+
+    if (poolStatus[id] !== 'done') {
+        res.redirect(`/download/${id}`);
+    } else if (req.params.final === 'true') {
+        res.download(`./pool/${id}/out/${id}.zim`, `${id}.zim`);
+    } else {
+        fs.createReadStream('./public/done.html').pipe(res);
+    }
+});
+
+app.get('/download/:id', (req, res) => {
+    const id = req.params.id;
+
+    if (typeof poolStatus[id] === 'undefined') {
+        fs.createReadStream('./public/missing.html').pipe(res);
+    } else if (poolStatus[id] === 'fail') {
+        fs.createReadStream('./public/fail.html').pipe(res);
+    } else if (poolStatus[id] === 'done') {
+        res.redirect(`/done/${id}/false`)
+    } else {
+        fs.createReadStream('./public/wait.html').pipe(res);
+    }
 });
 
 app.listen(8000);
