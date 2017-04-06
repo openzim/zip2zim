@@ -1,0 +1,28 @@
+{
+  "name": "zip2zim",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node_modules/.bin/ts-node index.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/express": "^4.0.35",
+    "@types/formidable": "^1.0.29",
+    "@types/ncp": "^2.0.0",
+    "@types/request": "0.0.42",
+    "@types/rimraf": "0.0.28",
+    "express": "^4.15.2",
+    "formidable": "^1.1.1",
+    "friendly-ids": "^1.0.1",
+    "ncp": "^2.0.0",
+    "request": "^2.81.0",
+    "rimraf": "^2.6.1",
+    "ts-node": "^3.0.2",
+    "typescript": "^2.2.2",
+    "unzip": "^0.1.11"
+  }
+}
