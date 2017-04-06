@@ -1,7 +1,7 @@
 FROM kiwix/mwoffliner
 
 RUN \
-git clone https://github.com/isnit0/zip2zim.git /app && \
+git clone https://github.com/openzim/zip2zim.git /app && \
 cd /app && \
 npm i
 
