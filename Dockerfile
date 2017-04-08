@@ -3,7 +3,8 @@ FROM kiwix/mwoffliner
 RUN \
 git clone https://github.com/openzim/zip2zim.git /app && \
 cd /app && \
-npm i
+npm i && \
+node_modules/.bin/pm2 install typescript
 
 WORKDIR /app
 

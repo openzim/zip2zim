@@ -40,6 +40,7 @@ const deletePoolEntry = id => {
     rimraf(`./pool/${id}`, err => {
         delete poolStatus[id];
         if (err) console.error(err);
+        else console.info(`Deleted pool ${id}`);
     });
 };
 
@@ -64,8 +65,6 @@ const zimify = function zimify(id: string) {
         } catch (e) { //No Override Config
             copyFileSync('./res/favicon.png', `./pool/${id}/content/favicon.png`);
         }
-
-        console.log(config);
 
         try {
             fs.statSync(`./pool/${id}/content/favicon.png`);
@@ -97,6 +96,7 @@ const zimify = function zimify(id: string) {
         exportProc.on('exit', function (code) {
             console.log('child process exited with code ' + code);
             if (code === 0) {
+                console.info(`Built zim file with id: ${id}`);
                 poolStatus[id] = 'done';
             } else {
                 poolStatus[id] = 'fail';
@@ -115,7 +115,6 @@ fs.readdir('./pool', (err, files) => {
 
     //Initialize with a single item in pool
     newPoolEntry(Object);
-
 });
 
 const app = express();
@@ -130,6 +129,7 @@ app.post('/upload', function (req, res) {
     const form = new formidable.IncomingForm();
 
     newPoolEntry(id => {
+        console.info(`Someone is uploading ${id}`);
         form.parse(req, function (err, fields, files) {
             if (files && files.file && files.file.path) {
                 fs.createReadStream(files.file.path)
@@ -160,6 +160,7 @@ app.get('/done/:id/:final', (req, res) => {
 
 app.get('/download/:id', (req, res) => {
     const id = req.params.id;
+    console.info(`Someone is downloading ${id}`);
 
     if (typeof poolStatus[id] === 'undefined') {
         fs.createReadStream('./public/missing.html').pipe(res);
@@ -173,3 +174,4 @@ app.get('/download/:id', (req, res) => {
 });
 
 app.listen(8000);
+console.info(`App bootstrapped, listening on port 8000`);

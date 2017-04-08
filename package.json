@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node_modules/.bin/ts-node index.ts"
+    "start": "node_modules/.bin/pm2 start index.ts"
   },
   "author": "",
   "license": "ISC",
@@ -21,6 +21,7 @@
     "formidable": "^1.1.1",
     "friendly-ids": "^1.0.1",
     "ncp": "^2.0.0",
+    "pm2": "^2.4.4",
     "request": "^2.81.0",
     "rimraf": "^2.6.1",
     "ts-node": "^3.0.2",
