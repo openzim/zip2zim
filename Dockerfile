@@ -1,4 +1,4 @@
-FROM kiwix/mwoffliner
+FROM openzim/mwoffliner
 
 RUN \
 git clone https://github.com/openzim/zip2zim.git /app && \
