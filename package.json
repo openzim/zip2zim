@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node_modules/.bin/pm2 start index.ts && node_modules/.bin/pm2 monit"
+    "start": "node_modules/.bin/pm2 start index.ts --no-daemon"
   },
   "author": "",
   "license": "ISC",
