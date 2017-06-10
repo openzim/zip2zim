@@ -9,4 +9,5 @@ node_modules/.bin/pm2 install typescript
 WORKDIR /app
 
 EXPOSE 8000
-CMD ["npm", "start"]
+ENTRYPOINT ["node"]
+CMD ["./node_modules/.bin/pm2-docker", "index.ts"]
