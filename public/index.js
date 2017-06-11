@@ -1,7 +1,6 @@
-// "myAwesomeDropzone" is the camelized version of the HTML element's ID
 Dropzone.options.uploadZip = {
   paramName: "file", // The name that will be used to transfer the file
-  maxFilesize: 20, // MB
+  maxFilesize: Infinity, // MB
   acceptedFiles: '.zip',
   maxFiles: 1,
   complete: function (res) {

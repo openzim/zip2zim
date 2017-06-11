@@ -55,8 +55,8 @@ const zimify = function zimify(id: string) {
             title: 'Zip2Zim',
             name: 'Zip2Zim',
             description: 'This was made using Zip2Zim',
-            creator: 'Joseph Reeve',
-            publisher: 'Joseph Reeve'
+            creator: 'Zip2Zim',
+            publisher: 'Zip2Zim'
         };
 
         try {
