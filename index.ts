@@ -30,7 +30,7 @@ const newPoolEntry = handler => {
             poolStatus[id] = 'fail';
             return console.error(err);
         }
-        fs.mkdir(`./pool/${id}/out`);
+        fs.mkdir(`./pool/${id}/out`, () => { });
         poolStatus[id] = 'pending';
         handler(id);
     });

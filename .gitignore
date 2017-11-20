@@ -63,3 +63,5 @@ ts-node-*
 .DS_Store
 kiwix-serve
 pool/*
+
+build

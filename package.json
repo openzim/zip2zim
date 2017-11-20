@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node_modules/.bin/pm2 start index.ts --no-daemon"
+    "build": "./node_modules/typescript/bin/tsc",
+    "start": "npm run build && node_modules/.bin/pm2 reload ecosystem.config.js"
   },
   "author": "",
   "license": "ISC",
@@ -14,7 +15,6 @@
     "@types/express": "^4.0.35",
     "@types/formidable": "^1.0.29",
     "@types/ncp": "^2.0.0",
-    "@types/request": "0.0.42",
     "@types/rimraf": "0.0.28",
     "es6-shim": "^0.35.3",
     "express": "^4.15.2",
