@@ -1,3 +1,5 @@
+![Build Status](https://travis-ci.org/openzim/zip2zim.svg?branch=master)
+
 # zip2zim
 Convert Zip Files to Zim Files
 
