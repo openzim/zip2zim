@@ -6,7 +6,7 @@ import * as rimraf from 'rimraf';
 import * as unzip from 'unzip';
 import { spawn } from 'child_process';
 
-type PoolState = 'pending' | 'inprogress' | 'fail' | 'done';
+type PoolState = 'pending' | 'inprogress' | 'fail' | string;
 
 const poolStatus: {
     [id: string]: PoolState
@@ -44,7 +44,7 @@ const deletePoolEntry = id => {
     });
 };
 
-const zimify = function zimify(id: string) {
+const zimify = function zimify(id: string, title?:string) {
     if (poolStatus[id] === 'pending') {
         poolStatus[id] = 'inprogress';
 
@@ -52,7 +52,7 @@ const zimify = function zimify(id: string) {
             index: 'index.html',
             favicon: 'favicon.png',
             language: 'en',
-            title: 'Zip2Zim',
+            title: title || 'Zip2Zim',
             name: 'Zip2Zim',
             description: 'This was made using Zip2Zim',
             creator: 'Zip2Zim',
@@ -72,6 +72,8 @@ const zimify = function zimify(id: string) {
 
         }
 
+        const fileName = `${title || config.title || id}.zim`;
+
         const exportProc = spawn(`zimwriterfs`,
             ['--verbose',
                 `--welcome=${config.index}`,
@@ -83,7 +85,7 @@ const zimify = function zimify(id: string) {
                 `--creator=${config.creator}`,
                 `--publisher=${config.publisher}`,
                 `./pool/${id}/content`,
-                `./pool/${id}/out/${id}.zim`]);
+                `./pool/${id}/out/${fileName}`]);
 
         exportProc.stdout.on('data', function (data) {
             console.log('stdout: ' + data);
@@ -97,7 +99,7 @@ const zimify = function zimify(id: string) {
             console.log('child process exited with code ' + code);
             if (code === 0) {
                 console.info(`Built zim file with id: ${id}`);
-                poolStatus[id] = 'done';
+                poolStatus[id] = fileName;
             } else {
                 poolStatus[id] = 'fail';
             }
@@ -135,7 +137,11 @@ app.post('/upload', function (req, res) {
                 fs.createReadStream(files.file.path)
                     .pipe(unzip.Extract({ path: `./pool/${id}/content/` }))
                     .on('close', function () {
-                        zimify(id);
+                        let fileName = files.file.name || undefined;
+                        if(typeof fileName === 'string') {
+                            fileName = fileName.split('.').slice(0, -1).join('.');
+                        }
+                        zimify(id, fileName);
                         res.send(id);
                     });
             } else {
@@ -149,10 +155,13 @@ app.post('/upload', function (req, res) {
 app.get('/done/:id/:final', (req, res) => {
     const id = req.params.id;
 
-    if (poolStatus[id] !== 'done') {
+    const isNotDone = poolStatus[id] === 'fail' || poolStatus[id] === 'pending' || poolStatus[id] === 'inprogress';
+
+    if (isNotDone) {
         res.redirect(`/download/${id}`);
     } else if (req.params.final === 'true') {
-        res.download(`./pool/${id}/out/${id}.zim`, `${id}.zim`);
+        const fileName = poolStatus[id];
+        res.download(`./pool/${id}/out/${fileName}`, `${fileName}`);
     } else {
         fs.createReadStream('./public/done.html').pipe(res);
     }
@@ -162,11 +171,13 @@ app.get('/download/:id', (req, res) => {
     const id = req.params.id;
     console.info(`Someone is downloading ${id}`);
 
+    const isDone = !(poolStatus[id] === 'fail' || poolStatus[id] === 'pending' || poolStatus[id] === 'inprogress');
+
     if (typeof poolStatus[id] === 'undefined') {
         fs.createReadStream('./public/missing.html').pipe(res);
     } else if (poolStatus[id] === 'fail') {
         fs.createReadStream('./public/fail.html').pipe(res);
-    } else if (poolStatus[id] === 'done') {
+    } else if (isDone) {
         res.redirect(`/done/${id}/false`)
     } else {
         fs.createReadStream('./public/wait.html').pipe(res);
