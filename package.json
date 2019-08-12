@@ -2,9 +2,14 @@
   "name": "zip-to-zim",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node dist/index",
+    "start:dev": "ts-node-dev -r tsconfig-paths/register src/index.ts",
+    "build": "npx tsc",
+    "redis:start": "docker run -p 6379:6379 --name redis-zip2zim -d redis",
+    "redis:kill": "docker rm -f redis-zip2zim || :",
+    "redis": "npm run redis:kill && npm run redis:start"
   },
   "author": "",
   "license": "ISC",
