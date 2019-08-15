@@ -7,11 +7,17 @@ import { Dashboard } from '@uppy/react';
 
 import '@uppy/core/dist/style.css';
 import '@uppy/dashboard/dist/style.css';
+import { Line } from 'rc-progress';
+
+const apiUrl = ({
+    production: 'https://zip2zim.openzim.org',
+    development: 'http://localhost:1337',
+})[process.env.NODE_ENV];
 
 interface AppState {
     uppy?: Uppy,
     requestId?: string,
-    requestStatus?: 'pending' | 'failed' | 'complete',
+    requestStatus?: 'pending' | 'failed' | 'complete' | 'downloaded',
     requestProgress?: number,
 }
 
@@ -28,16 +34,16 @@ class App extends React.Component {
         });
 
         const GoogleDrive = require('@uppy/google-drive');
-        uppy.use(GoogleDrive, { companionUrl: 'http://localhost:1337', id: 'GoogleDrive' });
+        uppy.use(GoogleDrive, { companionUrl: `${apiUrl}`, id: 'GoogleDrive' });
 
         const Dropbox = require('@uppy/dropbox');
-        uppy.use(Dropbox, { companionUrl: 'http://localhost:1337', id: 'Dropbox' });
+        uppy.use(Dropbox, { companionUrl: `${apiUrl}`, id: 'Dropbox' });
 
         const Url = require('@uppy/url');
-        uppy.use(Url, { companionUrl: 'http://localhost:1337', id: 'Url' });
+        uppy.use(Url, { companionUrl: `${apiUrl}`, id: 'Url' });
 
         uppy.use(XHRUpload as any, {
-            endpoint: 'http://localhost:1337/upload',
+            endpoint: `${apiUrl}/upload`,
             fieldName: 'file',
         });
 
@@ -79,33 +85,89 @@ class App extends React.Component {
     }
 
     render() {
-        if (!this.state.uppy) {
-            return <h1>Loading...</h1>
-        } else {
-            return <div>
-                {
-                    !this.state.requestId
-                        ? <>
-                            <h1>Upload</h1>
-                            <Dashboard
-                                uppy={this.state.uppy}
-                                plugins={['GoogleDrive', 'Dropbox', 'Url']}
-                                showProgressDetails={true}
-                            />
-                        </>
-                        :
-                        this.state.requestStatus === 'complete'
-                            ? <>
-                                <h1>Complete!</h1>
-                                <a href={`/download/${this.state.requestId}`}>Download Your ZIM</a>
-                                <p>You will only be able to download the file once</p>
-                            </>
-                            : this.state.requestStatus === 'failed'
-                                ? <><h1>Fail</h1></>
-                                : <><h1>Pending... {this.state.requestProgress || 0}%</h1></>
-                }
-            </div>
+        let frame;
+        if (this.state.requestId) {
+            if (this.state.requestStatus === 'complete') {
+                frame = <>
+                    <h3>✅ Success</h3>
+                    <br />
+                    <a className='download-zim' target='_blank' href={"/download/" + this.state.requestId} onClick={(ev) => {
+                        ev.preventDefault();
+                        window.open("/download/" + this.state.requestId);
+                        this.setState({ ...this.state, requestStatus: 'downloaded' });
+                    }}>💾 Download File</a>
+                    <br />
+                    <small>You will only be able to download the file once</small>
+                </>;
+            }
+            else if (this.state.requestStatus === 'pending') {
+                frame = <>
+                    <h3>🏃 We're processing your file</h3>
+                    <div style={{ maxWidth: '400px', margin: 'auto auto', textAlign: 'center' }}>
+                        <strong style={{ fontSize: '1.5em' }}>{this.state.requestProgress || 0}%</strong>
+                        <Line percent={this.state.requestProgress || 0} strokeWidth="4" strokeLinecap="round" strokeColor={'#87d068'} />
+                    </div>
+                </>;
+            }
+            else if (this.state.requestStatus === 'downloaded') {
+                frame = <>
+                    <p>🎉 Congratulations on Your Shiny New ZIM File</p>
+
+                    <a href="/" style={{ fontSize: '1.5em' }}>⬅️ Upload Another ZIP</a>
+                </>;
+            }
+            else {
+                frame = <>
+                    <h3>🤷‍ File not Available</h3>
+                    <p>
+                        We couldn't find the file you're looking for, it might be related to one of these:
+                        <ul>
+                            <li>🔥 We delete the ZIM file after it has been downloaded once</li>
+                            <li>🔥 We delete ZIM files after a few hours</li>
+                            <li>🗺 You may have followed an in-correct url</li>
+                        </ul>
+                    </p>
+
+                    <a href="/" style={{ fontSize: '1.5em' }}>⬅️ Upload Another ZIP</a>
+                </>;
+            }
         }
+        else {
+            if (this.state.uppy) {
+                frame = <>
+                    <h2>Upload</h2>
+                    <Dashboard uppy={this.state.uppy} plugins={['GoogleDrive', 'Dropbox', 'Url']} showProgressDetails={true} />
+                </>;
+            }
+            else {
+                frame = <>
+                    <h3>Loading</h3>
+                </>;
+            }
+        }
+        return <div className="page">
+            <h1>Zip2Zim</h1>
+            <p>
+                Upload a ZIP of HTML, CSS, JavaScript, etc. to convert it to a ZIM file.<br />
+                There should be a <code>index.html</code> file at the root.<br />
+                For more complex usage instructions, see <a href="#configuration"><code>config.json</code></a>
+            </p>
+            <div className="frame">{frame}</div>
+            <br />
+            <h2 id='configuration'><code>config.json</code></h2>
+            <p>
+                The <code>config.json</code> file can be used to specify metadata for the ZIM file.<br />
+                All properties are optional, defaults are shown below:<br />
+                <pre>
+                    <code className='javascript'>
+                        {"{\n    welcome: 'index.html',\n    creator: 'Zip2Zim',\n    description: 'Generated from a ZIP file by Zip2Zim',\n    name: 'Zip2Zim archive',\n    publisher: '',\n    language: '',\n    title: '',\n    tags: '',\n}"}
+                    </code>
+                </pre>
+            </p>
+            <br />
+            <hr />
+            <footer>Made by <a href="https://simmsreeve.com"><code>@ISNIT0</code></a> in Stockholm 🇸🇪 at the <a href="https://wiki.kiwix.org/wiki/Hackathon_Wikimania_2019">Kiwix 2019 Hackathon</a></footer>
+        </div>;
     }
 }
 

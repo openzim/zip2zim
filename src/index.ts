@@ -24,6 +24,8 @@ const {
     PORT,
 } = process.env;
 
+console.log(process.env)
+
 const app = express();
 
 app.use(logger('tiny'));
@@ -37,10 +39,11 @@ app.use(function (req, res, next) {
 
 
 app.use(bodyParser.json())
-app.use(session({ secret: 'some secret' }))
+app.use(session({ secret: 'unimportant secret' }))
 
 
 app.use(express.static('public'));
+app.use(express.static('dist'));
 app.use('node_modules', express.static('node_modules'));
 
 const options = {
@@ -60,7 +63,7 @@ const options = {
     },
     secret: 'test',
     filePath: path.join(os.tmpdir()),
-    // debug: true,
+    debug: true,
 }
 
 app.use(companion.app(options));
