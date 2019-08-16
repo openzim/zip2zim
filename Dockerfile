@@ -1,24 +1,20 @@
-FROM openzim/zimwriterfs:latest
+FROM node:11
 
-# Install package dependencies
-RUN apt-get update && \
-    apt-get -y install git curl
+# set our node environment, either development or production
+# defaults to production, compose overrides this to development on build and run
+ARG NODE_ENV=production
+ENV NODE_ENV $NODE_ENV
 
-# Install Node.js
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash
-RUN apt-get install --yes nodejs
+RUN mkdir /opt/node_app
+WORKDIR /opt/node_app
+RUN npm install pm2 -g
 
-# Local Development
-#COPY ./ /app
+COPY package.json package-lock.json* ./
+RUN npm install --no-optional && npm cache clean --force
+ENV PATH /opt/node_app/node_modules/.bin:$PATH
 
-RUN \
-    git clone https://github.com/openzim/zip2zim.git /app && \
-    cd /app && \
-    npm i
-RUN cd /app && /usr/bin/npm run build
+COPY . .
 
-WORKDIR /app
+RUN npm run build
 
-EXPOSE 8000
-ENTRYPOINT ["node"]
-CMD ["./node_modules/.bin/pm2-docker", "build/index.js"]
+CMD ["pm2-runtime", "start", "dist/index.js"]

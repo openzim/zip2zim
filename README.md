@@ -1,17 +1,31 @@
-![Build Status](https://travis-ci.org/openzim/zip2zim.svg?branch=master)
+# Zip2Zim
+A tool for generating ZIM files from zipped HTML/CSS/JS content.
 
-# zip2zim
-Convert Zip Files to Zim Files
+See the website for more info: [https://zip2zim.openzim.org](https://zip2zim.openzim.org)
 
-## Deployment
-We recommend using the Docker file:
+
+## Running
 ```bash
-> docker run -p 8000:8000 openzim/zip2zim
-```
-But you could run it directly yourself:
-```bash
-> npm i && npm start
+npm install
+cp .env.example .env
+# Edit .env
+npm run start:dev
 ```
 
-## Contributing
-A bad PR is better than no PR, we won't bite, so feel free to give it a go!
+### Docker
+```bash
+docker run \
+    -e GOOGLE_KEY=XXX \
+    -e GOOGLE_SECRET=XXX \
+    -e DROPBOX_KEY=XXX \
+    -e DROPBOX_SECRET=XXX \
+    -e PORT=8080 \
+    -p 8080:8080 \
+    openzim:zip2zim
+```
+
+# Who
+Made by [`@ISNIT0`](https://simmsreeve.com) in Stockholm 🇸🇪 at the [Kiwix 2019 Hackathon](https://wiki.kiwix.org/wiki/Hackathon_Wikimania_2019)
+
+# License
+GPLv3 - [./LICENSE](./LICENSE)

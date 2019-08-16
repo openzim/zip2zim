@@ -1,0 +1,10 @@
+{
+    "buildpacks": [
+      { "url": "heroku/nodejs" }
+    ],
+    "environments": {
+      "test": {
+        "addons": ["heroku-redis:in-dyno"]
+      }
+    }
+  }
