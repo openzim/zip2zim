@@ -6,7 +6,7 @@ import express from 'express';
 import { IncomingForm } from 'formidable';
 import rimraf from 'rimraf';
 import md5 from 'md5';
-import { statSync } from 'fs';
+import { statSync, readdir, mkdirSync } from 'fs';
 import companion from '@uppy/companion';
 import * as bodyParser from 'body-parser';
 import session from 'express-session';
@@ -16,20 +16,26 @@ import { zipToZim } from './convert';
 
 require('dotenv').config();
 
+const outDir = path.join(os.tmpdir(), 'zip2zim');
+
+const MAX_AGE = (1000 * 60 * 60 * 6); // 6 hours
+
 const {
     GOOGLE_KEY,
     GOOGLE_SECRET,
     DROPBOX_KEY,
     DROPBOX_SECRET,
+    HOST,
+    URL_SCHEME,
     PORT,
-} = process.env;
+} = Object.assign({ HOST: 'localhost', PORT: '1337', URL_SCHEME: 'http' }, process.env);
 
 if (!(GOOGLE_KEY && GOOGLE_SECRET && DROPBOX_KEY && DROPBOX_SECRET)) {
     console.error(`======================\nAll env vars are required:\n`, {
         GOOGLE_KEY,
         GOOGLE_SECRET,
         DROPBOX_KEY,
-        DROPBOX_SECRET
+        DROPBOX_SECRET,
     }, '\n======================');
     throw new Error(`Please specify all required ENV vars`);
 }
@@ -65,16 +71,46 @@ const options = {
         },
     },
     server: {
-        host: 'localhost:1337',
-        protocol: 'http',
+        host: `${HOST}${PORT ? ':' + PORT : ''}`,
+        protocol: URL_SCHEME,
     },
-    secret: 'test',
-    filePath: path.join(os.tmpdir()),
-    debug: true,
+    secret: 'unimportant secret',
+    filePath: outDir,
+    debug: false,
 }
 
 app.use(companion.app(options));
 
+try {
+    mkdirSync(outDir);
+    console.info(`Created [${outDir}]`);
+} catch { }
+
+function getFiles(dirPath: string): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+        readdir(dirPath, (err, fps) => {
+            if (err) reject(err);
+            else resolve(fps);
+        });
+    });
+}
+
+async function deleteOldFiles() {
+    console.info(`Searching for old ZIM files in [${outDir}]`);
+    const tmpFiles = await getFiles(outDir);
+    const ageLimit = Date.now() - MAX_AGE;
+    const oldFiles = tmpFiles.filter((fp) => {
+        const epochStr = fp.split('-').slice(-1)[0].split('.')[0];
+        return fp.endsWith('.zim') && Number(epochStr) < ageLimit;
+    });
+    console.info(`Found [${oldFiles.length}] old ZIM files`);
+    for (const fp of oldFiles) {
+        console.info(`Deleting [${fp}]`);
+        rimraf.sync(path.join(outDir, fp));
+    }
+}
+
+setInterval(deleteOldFiles, 1000 * 60 * 30);
 
 const reqs: {
     [id: string]: {
@@ -109,7 +145,7 @@ app.post('/upload', (req, res) => {
             return;
         }
         console.info(`Received file [${files.file.name}]`);
-        const zimPath = path.join(os.tmpdir(), `${files.file.name}-${Date.now()}.zim`);
+        const zimPath = path.join(outDir, `${files.file.name}-${Date.now()}.zim`);
         const id = md5(zimPath);
         reqs[id] = { path: zimPath, progress: 0 };
         startZipConversion(id, files.file.path, zimPath);
@@ -156,7 +192,7 @@ function fileExists(path: string) {
     return exists;
 }
 
-const port = PORT || 1337;
+const port = PORT;
 const srv = app.listen(port, () => {
     console.info(`Listening on [${port}]`);
 });
