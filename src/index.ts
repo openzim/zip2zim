@@ -24,7 +24,15 @@ const {
     PORT,
 } = process.env;
 
-console.log(process.env)
+if (!(GOOGLE_KEY && GOOGLE_SECRET && DROPBOX_KEY && DROPBOX_SECRET)) {
+    console.error(`======================\nAll env vars are required:\n`, {
+        GOOGLE_KEY,
+        GOOGLE_SECRET,
+        DROPBOX_KEY,
+        DROPBOX_SECRET
+    }, '\n======================');
+    throw new Error(`Please specify all required ENV vars`);
+}
 
 const app = express();
 

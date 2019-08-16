@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/index",
     "start:dev": "ts-node-dev -r tsconfig-paths/register src/index.ts",
-    "build": "",
+    "build": "npx webpack && tsc",
     "redis:start": "docker run -p 6379:6379 --name redis-zip2zim -d redis",
     "redis:kill": "docker rm -f redis-zip2zim || :",
     "redis": "npm run redis:kill && npm run redis:start"
@@ -58,9 +58,7 @@
     "ts-loader": "^6.0.4",
     "ts-node": "^8.3.0",
     "tsconfig-paths": "^3.8.0",
-    "typescript": "^3.5.3"
-  },
-  "devDependencies": {
+    "typescript": "^3.5.3",
     "webpack": "^4.39.2",
     "webpack-cli": "^3.3.6"
   }

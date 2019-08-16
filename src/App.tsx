@@ -14,12 +14,7 @@ import '@uppy/core/dist/style.css';
 import '@uppy/dashboard/dist/style.css';
 import { Line } from 'rc-progress';
 
-const env: 'production' | 'development' = process.env.NODE_ENV as any;
-
-const apiUrl = ({
-    production: 'https://zip2zim.openzim.org',
-    development: 'http://localhost:1337',
-})[env || 'development'];
+const apiUrl = window.location.origin
 
 interface AppState {
     uppy?: Uppy,
