@@ -7,6 +7,7 @@ ENV NODE_ENV $NODE_ENV
 
 RUN mkdir /opt/node_app
 WORKDIR /opt/node_app
+RUN npm install pm2 -g
 
 COPY package.json package-lock.json* ./
 RUN npm install --no-optional && npm cache clean --force
@@ -16,4 +17,4 @@ COPY . .
 
 RUN npm run build
 
-CMD ["npm", "start"]
+CMD ["pm2-runtime", "start", "dist/index.js"]
