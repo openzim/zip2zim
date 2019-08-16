@@ -148,18 +148,35 @@ class App extends React.Component {
             <h1>Zip2Zim</h1>
             <p>
                 Upload a ZIP of HTML, CSS, JavaScript, etc. to convert it to a ZIM file.<br />
-                There should be a <code>index.html</code> file at the root.<br />
-                For more complex usage instructions, see <a href="#configuration"><code>config.json</code></a>
+                There should be an <code>index.html</code> file at the root.<br />
+                For more configuration instructions, see <a href="#configuration"><code>config.json</code></a>
             </p>
             <div className="frame">{frame}</div>
             <br />
+            <h2>Example Zips</h2>
+            <div className='examples'>
+                <a href="/sample/simple.zip" className="example">Simple.zip</a>
+                <a href="/sample/wpen 10.zip" className="example">Wikipedia English Sample.zip</a>
+                <a href="/sample/testing_heuristics.zip" className="example">Testing Heuristics.zip</a>
+                <a href="/sample/sunset.zip" className="example">Sunset.zip</a>
+            </div>
+            <br />
             <h2 id='configuration'><code>config.json</code></h2>
             <p>
-                The <code>config.json</code> file can be used to specify metadata for the ZIM file.<br />
+                The <code>config.json</code> file (at the root of an uploaded zip) can be used to specify metadata for the ZIM file.<br />
                 All properties are optional, defaults are shown below:<br />
                 <pre>
                     <code className='javascript'>
-                        {"{\n    welcome: 'index.html',\n    creator: 'Zip2Zim',\n    description: 'Generated from a ZIP file by Zip2Zim',\n    name: 'Zip2Zim archive',\n    publisher: '',\n    language: '',\n    title: '',\n    tags: '',\n}"}
+                        {`{
+    welcome: 'index.html',
+    creator: 'Zip2Zim',
+    description: 'Generated from a ZIP file by Zip2Zim',
+    name: 'Zip2Zim archive',
+    publisher: '',
+    language: '',
+    title: '',
+    tags: '',
+}`}
                     </code>
                 </pre>
             </p>

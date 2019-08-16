@@ -170,11 +170,7 @@ app.get('/download/:id', (req, res) => {
     const { path } = reqs[id];
 
     if (fileExists(path)) {
-        res.download(path, (err) => {
-            if (!err) {
-                rimraf.sync(path);
-            }
-        });
+        res.download(path);
     } else {
         res.status(404).send({ error: 'File doesn\'t exist' });
     }

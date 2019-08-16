@@ -10,3 +10,19 @@
 .download-zim {
     font-size: 1.5em;
 }
+
+.examples {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.example {
+    background: #f2f2f2;
+    border-radius: 10px;
+    padding: 5px 10px;
+    margin:5px;
+    text-decoration: none;
+    white-space: nowrap;
+}
