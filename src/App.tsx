@@ -1,18 +1,25 @@
+///<reference path="./types.d.ts" />
+
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
 import { Uppy } from '@uppy/core';
-import * as XHRUpload from '@uppy/xhr-upload';
 import { Dashboard } from '@uppy/react';
+import XHRUpload from '@uppy/xhr-upload';
+import Url from '@uppy/url';
+import GoogleDrive from '@uppy/google-drive';
+import Dropbox from '@uppy/dropbox';
 
 import '@uppy/core/dist/style.css';
 import '@uppy/dashboard/dist/style.css';
 import { Line } from 'rc-progress';
 
+const env: 'production' | 'development' = process.env.NODE_ENV as any;
+
 const apiUrl = ({
     production: 'https://zip2zim.openzim.org',
     development: 'http://localhost:1337',
-})[process.env.NODE_ENV];
+})[env || 'development'];
 
 interface AppState {
     uppy?: Uppy,
@@ -33,13 +40,10 @@ class App extends React.Component {
             // autoProceed: true
         });
 
-        const GoogleDrive = require('@uppy/google-drive');
         uppy.use(GoogleDrive, { companionUrl: `${apiUrl}`, id: 'GoogleDrive' });
 
-        const Dropbox = require('@uppy/dropbox');
         uppy.use(Dropbox, { companionUrl: `${apiUrl}`, id: 'Dropbox' });
 
-        const Url = require('@uppy/url');
         uppy.use(Url, { companionUrl: `${apiUrl}`, id: 'Url' });
 
         uppy.use(XHRUpload as any, {
@@ -105,7 +109,7 @@ class App extends React.Component {
                     <h3>🏃 We're processing your file</h3>
                     <div style={{ maxWidth: '400px', margin: 'auto auto', textAlign: 'center' }}>
                         <strong style={{ fontSize: '1.5em' }}>{this.state.requestProgress || 0}%</strong>
-                        <Line percent={this.state.requestProgress || 0} strokeWidth="4" strokeLinecap="round" strokeColor={'#87d068'} />
+                        <Line percent={this.state.requestProgress || 0} strokeWidth={4} strokeLinecap="round" strokeColor={'#87d068'} />
                     </div>
                 </>;
             }
@@ -171,7 +175,7 @@ class App extends React.Component {
     }
 }
 
-ReactDOM.render(<App />, document.body);
+ReactDOM.render(<App />, document.querySelector('.cont'));
 
 
 function getJSON(url: string) {

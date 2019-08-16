@@ -44,7 +44,6 @@ app.use(session({ secret: 'unimportant secret' }))
 
 app.use(express.static('public'));
 app.use(express.static('dist'));
-app.use('node_modules', express.static('node_modules'));
 
 const options = {
     providerOptions: {
